@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "breakout-rl"
+version = "0.1.0"
+description = "Shared Atari Breakout environment and DQN experiments"
+requires-python = ">=3.10"
+dependencies = [
+  "torch>=2.3,<3",
+  "numpy>=1.24,<3",
+  "gymnasium[atari]>=1.1,<2",
+  "ale-py>=0.10,<0.12",
+  "opencv-python>=4.8",
+  "moviepy>=2.1,<3",
+  "swanlab[dashboard]>=0.10.4,<0.11",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10"]
+
+[project.scripts]
+breakout-train = "breakout_rl.cli.train:main"
+breakout-evaluate = "breakout_rl.cli.evaluate:main"
+breakout-demo = "breakout_rl.cli.demo:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["breakout_rl*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.setuptools.package-data]
+"breakout_rl.vendor.cleanrl" = ["*.json", "LICENSE"]

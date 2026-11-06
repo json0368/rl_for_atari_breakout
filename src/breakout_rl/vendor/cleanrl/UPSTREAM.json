@@ -1,0 +1,9 @@
+{
+  "repository": "https://github.com/vwxyzjn/cleanrl",
+  "commit": "fe8d8a03c41a7ef5b523e2e354bd01c363e786bb",
+  "files": [
+    "cleanrl_utils/atari_wrappers.py",
+    "cleanrl/dqn_atari.py"
+  ],
+  "adaptation": "Gymnasium 1.x wrapper names; unmodified upstream Atari helper classes; evaluation reports full games without reward clipping"
+}
