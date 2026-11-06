@@ -37,6 +37,8 @@ def train(args):
     env = make_env(config, training=True)
     initialized = False
     step, best_score = 0, -float("inf")
+    evaluations_without_improvement = 0
+    early_stopped = False
     start = time.perf_counter()
     evaluation_seconds = 0.0
     try:
@@ -117,10 +119,17 @@ def train(args):
                                     "eval/std_return": result["std_return"]})
                     if result["mean_return"] > best_score:
                         best_score = result["mean_return"]
+                        evaluations_without_improvement = 0
                         save("best.pt")
+                    else:
+                        evaluations_without_improvement += 1
+                    early_stopped = (args.early_stopping_patience > 0 and
+                                     evaluations_without_improvement >= args.early_stopping_patience)
+                    metrics.update({"eval/no_improvement_count": evaluations_without_improvement,
+                                    "eval/early_stopped": int(early_stopped)})
                 if step % args.save_frequency == 0:
                     save(f"step-{step}.pt")
-                if step % args.log_frequency == 0 or step == args.total_timesteps:
+                if step % args.log_frequency == 0 or step == args.total_timesteps or early_stopped:
                     metrics.update(latest_losses)
                     metrics["train/epsilon"] = epsilon
                 if metrics:
@@ -135,6 +144,11 @@ def train(args):
                     log_file.flush()
                     print(f"step={step} frames={frame_count(env)} epsilon={epsilon:.3f} "
                           f"td_loss={latest_losses.get('losses/td_loss', float('nan')):.4f}", flush=True)
+                if early_stopped:
+                    print(f"Early stopping at step={step}: no improvement for "
+                          f"{evaluations_without_improvement} evaluations; best mean return={best_score:.2f}",
+                          flush=True)
+                    break
         save("final.pt")
         print(f"Saved {run_dir / 'final.pt'}", flush=True)
     except KeyboardInterrupt:

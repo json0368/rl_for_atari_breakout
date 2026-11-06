@@ -19,6 +19,8 @@ def parser():
     p.add_argument("--exploration-fraction", type=float, default=0.1)
     p.add_argument("--eval-frequency", type=int, default=100_000, help="0 disables evaluation")
     p.add_argument("--eval-episodes", type=int, default=5)
+    p.add_argument("--early-stopping-patience", type=int, default=3,
+                   help="Stop after this many evaluations without a new best mean return; 0 disables")
     p.add_argument("--eval-seed", type=int, default=10_000)
     p.add_argument("--eval-epsilon", type=float, default=0.01)
     p.add_argument("--save-frequency", type=int, default=100_000)
@@ -42,8 +44,8 @@ def validate(args):
                 "eval_episodes", "torch_threads"):
         if getattr(args, key) < 1:
             raise ValueError(f"{key} must be positive")
-    if args.learning_starts < 0 or args.eval_frequency < 0:
-        raise ValueError("learning-starts and eval-frequency must be nonnegative")
+    if args.learning_starts < 0 or args.eval_frequency < 0 or args.early_stopping_patience < 0:
+        raise ValueError("learning-starts, eval-frequency and early-stopping-patience must be nonnegative")
     if args.batch_size > args.buffer_size:
         raise ValueError("batch-size must not exceed buffer-size")
     if not 0 <= args.end_e <= args.start_e <= 1 or not 0 <= args.eval_epsilon <= 1:

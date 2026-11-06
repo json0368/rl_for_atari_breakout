@@ -10,7 +10,8 @@
 | 优化器 | Adam，学习率1e-4，其余 PyTorch 默认值 |
 | Loss | MSE |
 | 梯度裁剪 | 默认关闭；显式指定属于偏离默认基线 |
-| 总预算 | 1000万决策步 |
+| 总预算 | 最多1000万决策步 |
+| 早停 | 连续3次评估平均得分未创新高；`--early-stopping-patience 0` 关闭 |
 | 回放容量 | 100万条，均匀采样 |
 | 预热 | 80000步，按上游零基索引时点更新 |
 | Batch / gamma | 32 / 0.99 |
@@ -29,6 +30,7 @@
 - `train/life_boundary`：训练片段终止标记，不能当作整局结束次数。
 - `losses/td_loss`、`losses/q_mean`、`losses/grad_norm`、`train/epsilon`。
 - `eval/mean_return`、`eval/std_return`：独立完整游戏评估，奖励不裁剪。
+- `eval/no_improvement_count`：连续未提升评估次数；`eval/early_stopped`：是否触发早停。
 - 决策步数、实际模拟器帧数、训练及评估耗时、吞吐量。
 
 默认每10万步评估5局，epsilon=0.01；可通过 `--eval-frequency 0` 关闭周期评估。不同算法统一环境协议、交互预算和独立评价种子，保留各自优化机制。正式比较建议使用多个训练种子，并分别报告样本效率和实际耗时。

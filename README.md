@@ -22,7 +22,7 @@ python -m swanlab login
 breakout-train --device cuda --run-name dqn-baseline --seed 1
 ```
 
-默认训练 1000 万步，指标上传到 SwanLab 云端。模型、配置和评估结果保存在 `outputs/runs/dqn-baseline/`。
+默认最多训练 1000 万步，每 10 万步评估一次，连续 3 次评估平均得分未创新高则早停。`--early-stopping-patience 0` 可关闭早停。指标上传到 SwanLab 云端。模型、配置和评估结果保存在 `outputs/runs/dqn-baseline/`。
 
 使用本地看板：
 
