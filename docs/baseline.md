@@ -62,3 +62,23 @@ Gymnasium 使用 SAME_STEP 自动重置，终止画面通过 `final_obs` 获取�
 评估默认按策略概率采样，使用独立 NumPy 随机数，不消耗训练用的 PyTorch 随机数。`--eval-deterministic` 切换为最大概率动作。评估和演示自动识别模型算法，PPO 可通过 `--deterministic` 选择动作模式。
 
 SwanLab 记录 `losses/policy_loss`、`value_loss`、`entropy`、`total_loss`、`approx_kl`、`old_approx_kl`、`clipfrac`、`explained_variance`、`grad_norm`，以及学习率、整局得分、评估和早停指标。`--target-kl` 可选参数只结束当前批次的优化，整场训练的早停由 `--early-stopping-patience` 控制。早停保存 `final.pt`，历史最佳保存 `best.pt`，手动中断保存 `interrupted.pt`。
+
+## PQN 基线
+
+PQN 参考同一固定版本的 `cleanrl/pqn_atari_envpool.py`。训练命令为 `breakout-train --algorithm pqn`，游戏、预处理、完整游戏评估与 DQN / PPO 保持一致。
+
+| 参数 | 默认值 |
+|---|---|
+| 网络 | 32/64/64 卷积与512隐藏层，各层使用 LayerNorm + ReLU，正交初始化 |
+| 优化器 | RAdam，学习率2.5e-4，eps=1e-8，线性衰减 |
+| 目标 | Q(lambda)，lambda=0.65，gamma=0.99；MSE |
+| 采样 / 更新 | 8环境 x 128步，4个 minibatch，更新4轮 |
+| epsilon | 1→0.01，前100万交互步内衰减，每个环境独立探索 |
+| 梯度裁剪 | 10.0 |
+| 预算 / 早停 | 最多1000万交互步；连续3次评估未创新高早停 |
+
+采样结束后固定 Q(lambda) 目标，所有更新轮次复用；不使用长期经验回放池或目标网络。SwanLab 记录 `losses/td_loss`、`losses/q_mean`、`losses/grad_norm`、epsilon、学习率、游戏得分和早停状态。
+
+与上游的适配：EnvPool 替换为共享 Gymnasium SyncVectorEnv，继续使用 `BreakoutNoFrameskip-v4`、黏性概率0和 SAME_STEP 重置。丢命与 game over 截断价值；时间截断用 `final_obs` 的最大 Q 值 bootstrap，并切断跨局 Q(lambda) 递推。观测使用 uint8，最后一轮按剩余预算缩短。评估、保存与日志采用项目公共协议，与 PPO 一样在更新完成后执行周期评估与保存。
+
+默认每约10万步评估5局，评估 epsilon=0.01。`--early-stopping-patience 0` 关闭早停；早停保存 `final.pt`，历史最佳为 `best.pt`，手动中断保存 `interrupted.pt`。训练、评估与演示的模型格式均标记为 `pqn`，由命令入口自动识别。

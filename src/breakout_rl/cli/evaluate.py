@@ -4,6 +4,7 @@ import argparse
 from ..algorithms.checkpoints import load_checkpoint
 from ..algorithms.dqn.policy import act as dqn_act
 from ..algorithms.ppo.policy import act as ppo_act
+from ..algorithms.pqn.policy import act as pqn_act
 from ..infrastructure.runtime import setup
 from ..infrastructure.artifacts import write_json
 from ..evaluation.runner import evaluate
@@ -30,6 +31,10 @@ def run(args, *, human=False):
     if algorithm == "ppo":
         select_action = lambda obs, rng: ppo_act(network, obs, rng, device, deterministic=args.deterministic)
         policy_config = {"deterministic": args.deterministic}
+    elif algorithm == "pqn":
+        select_action = lambda obs, rng: pqn_act(network, obs, args.epsilon, rng, device,
+                                                action_count=int(checkpoint["action_count"]))
+        policy_config = {"epsilon": args.epsilon}
     else:
         select_action = lambda obs, rng: dqn_act(network, obs, args.epsilon, rng, device)
         policy_config = {"epsilon": args.epsilon}

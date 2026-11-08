@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "breakout-rl"
 version = "0.1.0"
-description = "Shared Atari Breakout environment with DQN and PPO experiments"
+description = "Shared Atari Breakout environment with DQN, PPO and PQN experiments"
 requires-python = ">=3.10"
 dependencies = [
   "torch>=2.3,<3",

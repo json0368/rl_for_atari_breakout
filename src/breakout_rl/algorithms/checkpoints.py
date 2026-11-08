@@ -9,6 +9,8 @@ def load_checkpoint(path, device):
         from .dqn.checkpoints import build_policy
     elif algorithm == "ppo":
         from .ppo.checkpoints import build_policy
+    elif algorithm == "pqn":
+        from .pqn.checkpoints import build_policy
     else:
         raise ValueError(f"Unsupported checkpoint algorithm: {algorithm}")
     return build_policy(checkpoint, device)

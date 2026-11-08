@@ -4,7 +4,8 @@
   "files": [
     "cleanrl_utils/atari_wrappers.py",
     "cleanrl/dqn_atari.py",
-    "cleanrl/ppo_atari.py"
+    "cleanrl/ppo_atari.py",
+    "cleanrl/pqn_atari_envpool.py"
   ],
-  "adaptation": "Gymnasium 1.x wrapper names; unmodified upstream Atari helper classes; evaluation reports full games without reward clipping; PPO uses Gymnasium SAME_STEP autoreset, timeout final-state bootstrap, uint8 rollouts, final partial rollout, SwanLab, independent evaluation and patience-based early stopping"
+  "adaptation": "Gymnasium 1.x wrapper names; unmodified upstream Atari helper classes; evaluation reports full games without reward clipping; PPO uses Gymnasium SAME_STEP autoreset, timeout final-state bootstrap, uint8 rollouts, final partial rollout, SwanLab, independent evaluation and patience-based early stopping; PQN replaces EnvPool with the shared Gymnasium backend, retains LayerNorm/RAdam/Q(lambda), and shares timeout handling, uint8 rollouts, evaluation and early stopping"
 }
