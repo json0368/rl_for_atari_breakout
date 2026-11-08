@@ -19,7 +19,11 @@ python -m pip install -e '.[dev]'
 
 ```bash
 python -m swanlab login
-breakout-train --device cuda --run-name dqn-baseline --seed 1
+# DQN
+breakout-train --algorithm dqn --device cuda --run-name dqn-baseline --seed 1
+
+# PPO
+breakout-train --algorithm ppo --device cuda --run-name ppo-baseline --seed 1
 ```
 
 默认最多训练 1000 万步，每 10 万步评估一次，连续 3 次评估平均得分未创新高则早停。`--early-stopping-patience 0` 可关闭早停。指标上传到 SwanLab 云端。模型、配置和评估结果保存在 `outputs/runs/dqn-baseline/`。
@@ -31,12 +35,12 @@ breakout-train --device cuda --run-name dqn-local --swanlab-mode local
 python -m swanlab watch outputs/swanlab --host 127.0.0.1 --port 5093
 ```
 
-打开 [http://127.0.0.1:5093](http://127.0.0.1:5093) 查看训练曲线。更多参数见 `breakout-train --help`。
+打开 [http://127.0.0.1:5093](http://127.0.0.1:5093) 查看训练曲线。
 
 ## 评估与演示
 
 ```bash
-# 评估 10 局，统计得分均值与标准差
+# 自动识别 DQN / PPO 模型，评估 10 局
 breakout-evaluate --checkpoint outputs/runs/dqn-baseline/final.pt --episodes 10
 
 # 窗口演示

@@ -18,7 +18,7 @@ def save_checkpoint(path, network, optimizer, env_config, train_config, step, fr
     torch.save({
         "format_version": 1, "algorithm": algorithm, "model": network.state_dict(),
         "optimizer": optimizer.state_dict(), "env_config": asdict(env_config),
-        "train_config": train_config, "step": step, "frames": frames,
-        "action_count": action_count,
+        "train_config": train_config, "step": int(step), "frames": int(frames),
+        "action_count": int(action_count),
     }, temporary)
     temporary.replace(path)

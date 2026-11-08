@@ -13,6 +13,9 @@
 | `algorithms/dqn/trainer.py` | DQN 训练循环、SwanLab、周期评估 |
 | `algorithms/dqn/policy.py` | epsilon-greedy 动作选择 |
 | `algorithms/dqn/checkpoints.py` | 从模型快照构建 DQN 策略 |
+| `algorithms/ppo/` | Actor-Critic、rollout、GAE、PPO 更新与训练配置 |
+| `algorithms/checkpoints.py` | 根据模型元数据选择 DQN / PPO 加载器 |
+| `envs/vector.py` | SAME_STEP 向量环境、终止画面与整局统计提取 |
 | `envs/atari.py` | 共享游戏协议、预处理与统计 |
 | `envs/legacy.py` | 读取已保留旧模型所需的历史协议 |
 | `evaluation/runner.py` | 接受动作选择函数，按完整游戏报告结果 |
@@ -23,7 +26,7 @@
 
 ## 增加算法
 
-在 `algorithms/` 下新增实际实现，例如 `ppo/`、`pqn/`；按需要放入网络、参数、优化和训练器。没有实现的算法不创建空壳目录。
+在 `algorithms/` 下新增实际实现，例如 `pqn/`；按需要放入网络、参数、优化和训练器。没有实现的算法不创建空壳目录。
 
 环境复用 `EnvConfig` 和 `make_env`。PPO、PQN 的并行采样可在这一单环境工厂之上组装向量环境，需明确自动重置与终止处理，不把采样后端差异混成算法收益。
 

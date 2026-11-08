@@ -1,9 +1,23 @@
-"""Train a DQN agent."""
-from ..algorithms.dqn.config import parser
-from ..algorithms.dqn.trainer import train
+"""Select and train a Breakout algorithm."""
+import argparse
+
 
 def main():
-    train(parser().parse_args())
+    selector = argparse.ArgumentParser(add_help=False)
+    selector.add_argument("--algorithm", choices=["dqn", "ppo"], default="dqn")
+    selected, remaining = selector.parse_known_args()
+    if selected.algorithm == "ppo":
+        from ..algorithms.ppo.config import parser
+        from ..algorithms.ppo.trainer import train
+    else:
+        from ..algorithms.dqn.config import parser
+        from ..algorithms.dqn.trainer import train
+    p = parser()
+    p.add_argument("--algorithm", choices=["dqn", "ppo"], default=selected.algorithm,
+                   help="Algorithm to train (default: dqn)")
+    args = p.parse_args(remaining)
+    train(args)
+
 
 if __name__ == "__main__":
     main()
