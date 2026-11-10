@@ -82,3 +82,13 @@ PQN 参考同一固定版本的 `cleanrl/pqn_atari_envpool.py`。训练命令为
 与上游的适配：EnvPool 替换为共享 Gymnasium SyncVectorEnv，继续使用 `BreakoutNoFrameskip-v4`、黏性概率0和 SAME_STEP 重置。丢命与 game over 截断价值；时间截断用 `final_obs` 的最大 Q 值 bootstrap，并切断跨局 Q(lambda) 递推。观测使用 uint8，最后一轮按剩余预算缩短。评估、保存与日志采用项目公共协议，与 PPO 一样在更新完成后执行周期评估与保存。
 
 默认每约10万步评估5局，评估 epsilon=0.01。`--early-stopping-patience 0` 关闭早停；早停保存 `final.pt`，历史最佳为 `best.pt`，手动中断保存 `interrupted.pt`。训练、评估与演示的模型格式均标记为 `pqn`，由命令入口自动识别。
+
+## Double DQN
+
+训练命令为 `breakout-train --algorithm ddqn`。参考 [Deep Reinforcement Learning with Double Q-learning](https://arxiv.org/abs/1509.06461)，在现有 CleanRL DQN 基线上扩展。
+
+在线网络选择下一状态的动作 `a* = argmax_a Q_online(s_next, a)`，目标网络评估该动作 `Q_target(s_next, a*)`。TD 目标为 `r + gamma * (1 - terminated) * Q_target(s_next, a*)`；目标计算不参与梯度更新。
+
+网络、优化器、MSE、回放采样、epsilon、预热与更新频率均沿用 DQN。丢命与 game over 不 bootstrap，时间截断使用终止前画面 bootstrap。训练循环、SwanLab、完整游戏评估和早停共用 DQN 逻辑。模型元数据独立标记为 `ddqn`，评估与演示命令自动识别。
+
+默认保留连续3次评估未创新高早停；完整预算对比可使用 `--early-stopping-patience 0`。`best.pt`、`final.pt` 与 `interrupted.pt` 分别保存最佳、结束与手动中断时的策略。

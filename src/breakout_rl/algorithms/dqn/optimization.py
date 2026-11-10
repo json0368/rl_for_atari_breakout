@@ -8,10 +8,12 @@ def td_target(rewards, terminated, next_q, gamma):
     return rewards + gamma * (~terminated).float() * next_q
 
 
-def update(network, target, optimizer, batch, gamma, max_grad_norm=None):
+def update(network, target, optimizer, batch, gamma, max_grad_norm=None, *, next_value_fn=None):
     obs, next_obs, actions, rewards, terminated = batch
     with torch.no_grad():
-        expected = td_target(rewards, terminated, target(next_obs).max(1).values, gamma)
+        next_q = (target(next_obs).max(1).values if next_value_fn is None
+                  else next_value_fn(network, target, next_obs))
+        expected = td_target(rewards, terminated, next_q, gamma)
     values = network(obs).gather(1, actions[:, None]).squeeze(1)
     loss = F.mse_loss(values, expected)
     optimizer.zero_grad(set_to_none=True)

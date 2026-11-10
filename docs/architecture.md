@@ -13,9 +13,10 @@
 | `algorithms/dqn/trainer.py` | DQN 训练循环、SwanLab、周期评估 |
 | `algorithms/dqn/policy.py` | epsilon-greedy 动作选择 |
 | `algorithms/dqn/checkpoints.py` | 从模型快照构建 DQN 策略 |
+| `algorithms/ddqn/` | Double DQN 的目标计算与入口；复用 DQN 网络、回放和训练循环 |
 | `algorithms/ppo/` | Actor-Critic、rollout、GAE、PPO 更新与训练配置 |
 | `algorithms/pqn/` | LayerNorm Q 网络、epsilon 探索、Q(lambda)、RAdam 与训练配置 |
-| `algorithms/checkpoints.py` | 根据模型元数据选择 DQN / PPO / PQN 加载器 |
+| `algorithms/checkpoints.py` | 根据模型元数据选择 DQN / Double DQN / PPO / PQN 加载器 |
 | `envs/vector.py` | SAME_STEP 向量环境、终止画面与整局统计提取 |
 | `envs/atari.py` | 共享游戏协议、预处理与统计 |
 | `envs/legacy.py` | 读取已保留旧模型所需的历史协议 |

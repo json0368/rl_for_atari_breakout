@@ -21,15 +21,17 @@ from ...infrastructure.runtime import setup
 from ...envs import EnvConfig, make_env, frame_count
 from ...evaluation.runner import evaluate
 
-def train(args):
+def train(args, *, algorithm="dqn", update_fn=None):
     validate(args)
+    optimize = update if update_fn is None else update_fn
     config = EnvConfig(repeat_action_probability=args.sticky_action_probability,
                        max_episode_frames=args.max_episode_frames)
     device = setup(args.seed, args.device, args.torch_threads)
-    name = args.run_name or f"dqn-seed{args.seed}-{datetime.now():%Y%m%d-%H%M%S-%f}"
+    name = args.run_name or f"{algorithm}-seed{args.seed}-{datetime.now():%Y%m%d-%H%M%S-%f}"
     run_dir = args.output_dir / name
     run_dir.mkdir(parents=True, exist_ok=False)
     train_config = {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()}
+    train_config["algorithm"] = algorithm
     train_config["resolved_device"] = str(device)
     train_config["cleanrl_upstream"] = json.loads(files("breakout_rl.vendor.cleanrl").joinpath("UPSTREAM.json").read_text())
     train_config["versions"] = {p: version(p) for p in ("torch", "gymnasium", "ale-py", "swanlab", "numpy")}
@@ -68,7 +70,8 @@ def train(args):
 
         def save(filename):
             save_checkpoint(run_dir / filename, network, optimizer, config,
-                            train_config, step, frame_count(env))
+                            train_config, step, frame_count(env),
+                            algorithm=algorithm, action_count=env.action_space.n)
 
         with (run_dir / "metrics.jsonl").open("a", encoding="utf-8") as log_file:
             for step in range(1, args.total_timesteps + 1):
@@ -95,7 +98,7 @@ def train(args):
                     metrics["train/life_boundary"] = 1
                     obs, _ = env.reset()
                 if step - 1 > args.learning_starts and replay.size >= args.batch_size and (step - 1) % args.train_frequency == 0:
-                    latest_losses = update(network, target, optimizer,
+                    latest_losses = optimize(network, target, optimizer,
                                            replay.sample(args.batch_size, device),
                                            args.gamma, args.max_grad_norm)
                 if step - 1 > args.learning_starts and (step - 1) % args.target_network_frequency == 0:
@@ -154,7 +157,8 @@ def train(args):
     except KeyboardInterrupt:
         if "optimizer" in locals():
             save_checkpoint(run_dir / "interrupted.pt", network, optimizer, config,
-                            train_config, step, frame_count(env))
+                            train_config, step, frame_count(env),
+                            algorithm=algorithm, action_count=env.action_space.n)
         print("Training interrupted; policy snapshot saved.", flush=True)
     finally:
         env.close()

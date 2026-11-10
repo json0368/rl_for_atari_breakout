@@ -5,7 +5,7 @@ import torch
 def load_checkpoint(path, device):
     checkpoint = torch.load(path, map_location=device, weights_only=True)
     algorithm = checkpoint.get("algorithm")
-    if algorithm == "dqn":
+    if algorithm in ("dqn", "ddqn"):
         from .dqn.checkpoints import build_policy
     elif algorithm == "ppo":
         from .ppo.checkpoints import build_policy

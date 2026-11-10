@@ -4,7 +4,7 @@ from .network import QNetwork
 from ...envs import EnvConfig
 
 def build_policy(checkpoint, device):
-    if checkpoint.get("format_version") != 1 or checkpoint.get("algorithm") != "dqn":
+    if checkpoint.get("format_version") != 1 or checkpoint.get("algorithm") not in ("dqn", "ddqn"):
         raise ValueError("Unsupported checkpoint format or algorithm")
     saved_env = dict(checkpoint["env_config"])
     saved_env.setdefault("protocol", "legacy")

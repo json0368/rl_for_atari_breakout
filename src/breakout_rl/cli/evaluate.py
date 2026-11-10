@@ -36,7 +36,8 @@ def run(args, *, human=False):
                                                 action_count=int(checkpoint["action_count"]))
         policy_config = {"epsilon": args.epsilon}
     else:
-        select_action = lambda obs, rng: dqn_act(network, obs, args.epsilon, rng, device)
+        select_action = lambda obs, rng: dqn_act(network, obs, args.epsilon, rng, device,
+                                                action_count=int(checkpoint["action_count"]))
         policy_config = {"epsilon": args.epsilon}
     result = evaluate(select_action,
                       config, episodes=args.episodes, seed=args.seed,
