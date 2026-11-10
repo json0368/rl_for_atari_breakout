@@ -92,3 +92,13 @@ PQN 参考同一固定版本的 `cleanrl/pqn_atari_envpool.py`。训练命令为
 网络、优化器、MSE、回放采样、epsilon、预热与更新频率均沿用 DQN。丢命与 game over 不 bootstrap，时间截断使用终止前画面 bootstrap。训练循环、SwanLab、完整游戏评估和早停共用 DQN 逻辑。模型元数据独立标记为 `ddqn`，评估与演示命令自动识别。
 
 默认保留连续3次评估未创新高早停；完整预算对比可使用 `--early-stopping-patience 0`。`best.pt`、`final.pt` 与 `interrupted.pt` 分别保存最佳、结束与手动中断时的策略。
+
+## Dueling DQN
+
+训练命令为 `breakout-train --algorithm dueling`。参考 [Dueling Network Architectures for Deep Reinforcement Learning](https://arxiv.org/abs/1511.06581)，采用均值聚合：`Q(s,a) = V(s) + A(s,a) - mean_a A(s,a)`。
+
+共享32/64/64卷积编码器，value 和 advantage 分支各使用512维隐藏层，分别输出1个状态价值与4个动作优势。每个样本独立沿动作维度去均值；原始像素进入 CNN 前转换为浮点数并除以255。
+
+该版本采用标准 DQN 的目标网络最大值 TD 目标。网络之外的 Adam、MSE、回放、探索与目标同步频率均沿用 DQN，完整游戏统计、SwanLab 和早停复用公共训练流程。模型标记为 `dueling`，评估与演示自动构建对应的双分支网络。
+
+默认保留连续3次评估未创新高早停；完整预算对比加 `--early-stopping-patience 0`。最佳、结束与中断策略分别保存为 `best.pt`、`final.pt`、`interrupted.pt`。

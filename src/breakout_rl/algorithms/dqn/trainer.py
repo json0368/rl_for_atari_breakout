@@ -21,9 +21,10 @@ from ...infrastructure.runtime import setup
 from ...envs import EnvConfig, make_env, frame_count
 from ...evaluation.runner import evaluate
 
-def train(args, *, algorithm="dqn", update_fn=None):
+def train(args, *, algorithm="dqn", update_fn=None, network_factory=None):
     validate(args)
     optimize = update if update_fn is None else update_fn
+    build_network = QNetwork if network_factory is None else network_factory
     config = EnvConfig(repeat_action_probability=args.sticky_action_probability,
                        max_episode_frames=args.max_episode_frames)
     device = setup(args.seed, args.device, args.torch_threads)
@@ -54,8 +55,8 @@ def train(args, *, algorithm="dqn", update_fn=None):
                          probe=swanlab.Settings.Probe(requirements=False, conda=False),
                      ))
         initialized = True
-        network = QNetwork(config.stack_size, env.action_space.n).to(device)
-        target = QNetwork(config.stack_size, env.action_space.n).to(device)
+        network = build_network(config.stack_size, env.action_space.n).to(device)
+        target = build_network(config.stack_size, env.action_space.n).to(device)
         target.load_state_dict(network.state_dict())
         target.eval()
         optimizer = torch.optim.Adam(network.parameters(), lr=args.learning_rate)

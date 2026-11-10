@@ -25,6 +25,9 @@ breakout-train --algorithm dqn --device cuda --run-name dqn-baseline --seed 1
 # Double DQN
 breakout-train --algorithm ddqn --device cuda --run-name ddqn-baseline --seed 1
 
+# Dueling DQN
+breakout-train --algorithm dueling --device cuda --run-name dueling-baseline --seed 1
+
 # PPO
 breakout-train --algorithm ppo --device cuda --run-name ppo-baseline --seed 1
 
@@ -46,7 +49,7 @@ python -m swanlab watch outputs/swanlab --host 127.0.0.1 --port 5093
 ## 评估与演示
 
 ```bash
-# 自动识别 DQN / Double DQN / PPO / PQN 模型，评估 10 局
+# 自动识别 DQN / Double DQN / Dueling DQN / PPO / PQN 模型，评估 10 局
 breakout-evaluate --checkpoint outputs/runs/dqn-baseline/final.pt --episodes 10
 
 # 窗口演示

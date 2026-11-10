@@ -4,7 +4,7 @@ import argparse
 
 def main():
     selector = argparse.ArgumentParser(add_help=False)
-    selector.add_argument("--algorithm", choices=["dqn", "ddqn", "ppo", "pqn"], default="dqn")
+    selector.add_argument("--algorithm", choices=["dqn", "ddqn", "dueling", "ppo", "pqn"], default="dqn")
     selected, remaining = selector.parse_known_args()
     if selected.algorithm == "ppo":
         from ..algorithms.ppo.config import parser
@@ -15,11 +15,14 @@ def main():
     elif selected.algorithm == "ddqn":
         from ..algorithms.ddqn.config import parser
         from ..algorithms.ddqn.trainer import train
+    elif selected.algorithm == "dueling":
+        from ..algorithms.dueling.config import parser
+        from ..algorithms.dueling.trainer import train
     else:
         from ..algorithms.dqn.config import parser
         from ..algorithms.dqn.trainer import train
     p = parser()
-    p.add_argument("--algorithm", choices=["dqn", "ddqn", "ppo", "pqn"], default=selected.algorithm,
+    p.add_argument("--algorithm", choices=["dqn", "ddqn", "dueling", "ppo", "pqn"], default=selected.algorithm,
                    help="Algorithm to train (default: dqn)")
     args = p.parse_args(remaining)
     train(args)

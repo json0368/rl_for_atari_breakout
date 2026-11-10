@@ -7,6 +7,8 @@ def load_checkpoint(path, device):
     algorithm = checkpoint.get("algorithm")
     if algorithm in ("dqn", "ddqn"):
         from .dqn.checkpoints import build_policy
+    elif algorithm == "dueling":
+        from .dueling.checkpoints import build_policy
     elif algorithm == "ppo":
         from .ppo.checkpoints import build_policy
     elif algorithm == "pqn":

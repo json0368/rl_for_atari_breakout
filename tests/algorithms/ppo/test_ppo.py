@@ -180,13 +180,14 @@ def test_training_updates_logs_saves_and_stops(tmp_path,monkeypatch,scores,patie
         assert payload['step']==8
 
 
-@pytest.mark.parametrize("algorithm", ["dqn", "ddqn", "ppo", "pqn"])
+@pytest.mark.parametrize("algorithm", ["dqn", "ddqn", "dueling", "ppo", "pqn"])
 def test_evaluate_cli_selects_checkpoint_policy(tmp_path, monkeypatch, algorithm):
     from breakout_rl.cli import evaluate as command
     from breakout_rl.algorithms.dqn.network import QNetwork
     torch.set_num_threads(1)
     from breakout_rl.algorithms.pqn.network import QNetwork as PQNetwork
-    model = {"ppo": ActorCritic, "dqn": QNetwork, "ddqn": QNetwork, "pqn": PQNetwork}[algorithm]()
+    from breakout_rl.algorithms.dueling.network import QNetwork as DuelingNetwork
+    model = {"dueling": DuelingNetwork, "ppo": ActorCritic, "dqn": QNetwork, "ddqn": QNetwork, "pqn": PQNetwork}[algorithm]()
     optimizer = torch.optim.Adam(model.parameters())
     checkpoint = tmp_path / f"{algorithm}.pt"
     save_checkpoint(checkpoint, model, optimizer, EnvConfig(), {}, 8, 32, algorithm=algorithm)
