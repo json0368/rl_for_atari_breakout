@@ -55,9 +55,19 @@ breakout-evaluate --checkpoint outputs/runs/dqn-baseline/final.pt --episodes 10
 # 窗口演示
 breakout-demo --checkpoint outputs/runs/dqn-baseline/final.pt
 
+# 打开多模型演示界面，可在窗口里添加和更换 .pt 权重
+breakout-viewer
+
+# 启动时同时打开两个模型
+breakout-viewer outputs/runs/dqn-baseline/best.pt outputs/runs/ppo-baseline/best.pt
+
 # 录制 MP4
 breakout-demo --checkpoint outputs/runs/dqn-baseline/final.pt --video-dir outputs/videos/dqn-baseline
 ```
+
+多模型演示使用带 Tk 支持的 Python，默认在 CPU 上运行。「添加权重」可以多选 .pt 文件。「批量导入」会搜索选中目录及其子目录，可以选择 `best.pt`、`final.pt` 或所有 .pt 权重。
+
+权重加载或更换后会等待手动启动。点击卡片上的「开始」运行该模型，点击「全部开始」同时运行或继续所有已加载模型。每个模型独立对局，实时显示训练步数、本局得分和上一局得分，局末自动开始下一局。
 
 ## 项目结构
 

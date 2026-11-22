@@ -2,9 +2,7 @@
 from pathlib import Path
 import argparse
 from ..algorithms.checkpoints import load_checkpoint
-from ..algorithms.dqn.policy import act as dqn_act
-from ..algorithms.ppo.policy import act as ppo_act
-from ..algorithms.pqn.policy import act as pqn_act
+from ..evaluation.policy import action_selector
 from ..infrastructure.runtime import setup
 from ..infrastructure.artifacts import write_json
 from ..evaluation.runner import evaluate
@@ -28,17 +26,9 @@ def run(args, *, human=False):
     device = setup(args.seed, args.device)
     network, config, checkpoint = load_checkpoint(args.checkpoint, device)
     algorithm = checkpoint["algorithm"]
-    if algorithm == "ppo":
-        select_action = lambda obs, rng: ppo_act(network, obs, rng, device, deterministic=args.deterministic)
-        policy_config = {"deterministic": args.deterministic}
-    elif algorithm == "pqn":
-        select_action = lambda obs, rng: pqn_act(network, obs, args.epsilon, rng, device,
-                                                action_count=int(checkpoint["action_count"]))
-        policy_config = {"epsilon": args.epsilon}
-    else:
-        select_action = lambda obs, rng: dqn_act(network, obs, args.epsilon, rng, device,
-                                                action_count=int(checkpoint["action_count"]))
-        policy_config = {"epsilon": args.epsilon}
+    select_action = action_selector(network, checkpoint, device,
+                                    epsilon=args.epsilon, deterministic=args.deterministic)
+    policy_config = {"deterministic": args.deterministic} if algorithm == "ppo" else {"epsilon": args.epsilon}
     result = evaluate(select_action,
                       config, episodes=args.episodes, seed=args.seed,
                       render_mode="human" if human else None,
