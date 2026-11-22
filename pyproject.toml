@@ -24,6 +24,7 @@ dev = ["pytest>=8,<10"]
 breakout-train = "breakout_rl.cli.train:main"
 breakout-evaluate = "breakout_rl.cli.evaluate:main"
 breakout-demo = "breakout_rl.cli.demo:main"
+breakout-viewer = "breakout_rl.cli.viewer:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
