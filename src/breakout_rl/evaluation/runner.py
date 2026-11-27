@@ -2,6 +2,14 @@
 import numpy as np
 from ..envs import frame_count, make_env
 
+
+def _safe_lives(env):
+    try:
+        return int(env.unwrapped.ale.lives())
+    except Exception:
+        return None
+
+
 def evaluate(select_action, config, *, episodes=10, seed=10_000,
              render_mode=None, video_dir=None):
     if episodes < 1:
@@ -14,20 +22,40 @@ def evaluate(select_action, config, *, episodes=10, seed=10_000,
             before = frame_count(env)
             obs, _ = env.reset(seed=seed + episode)
             score, length = 0.0, 0
+            life_losses = []
             while True:
                 action = int(select_action(obs, rng))
                 obs, reward, terminated, truncated, info = env.step(action)
                 score += float(reward)
                 length += 1
+                ep_frames = frame_count(env) - before
                 if "episode" in info:
                     score = float(info["episode"]["r"])
+                    if terminated and not truncated:
+                        lives = _safe_lives(env)
+                        life_losses.append({
+                            "life_lost_index": len(life_losses) + 1,
+                            "lives_remaining": 0 if lives is None else max(0, lives),
+                            "step": length,
+                            "frame": ep_frames,
+                            "score": score,
+                        })
                     break
                 if terminated or truncated:
+                    lives = _safe_lives(env)
+                    life_losses.append({
+                        "life_lost_index": len(life_losses) + 1,
+                        "lives_remaining": lives,
+                        "step": length,
+                        "frame": ep_frames,
+                        "score": score,
+                    })
                     # Artificial life boundary: continue the same full game.
                     obs, _ = env.reset()
             record = {"seed": seed + episode, "return": score, "steps": length,
                       "frames": frame_count(env) - before,
-                      "terminated": bool(terminated), "truncated": bool(truncated)}
+                      "terminated": bool(terminated), "truncated": bool(truncated),
+                      "life_losses": life_losses}
             records.append(record)
             print(f"episode={episode + 1} score={score:g} steps={length}", flush=True)
     finally:

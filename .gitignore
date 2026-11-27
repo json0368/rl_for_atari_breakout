@@ -8,4 +8,4 @@ __pycache__/
 build/
 dist/
 *.log
-docs/reports/*.doc
+docs/reports
